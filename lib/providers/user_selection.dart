@@ -2,15 +2,15 @@ import 'package:flutter/foundation.dart';
 
 class UserSelection extends ChangeNotifier {
   String? selectedGender;
-  String? selectedCategoryTitle;
+  String? selectedCategoryId;
 
   void setGender(String gender) {
     selectedGender = gender;
     notifyListeners();
   }
 
-  void setCategory(String title, String emoji) {
-    selectedCategoryTitle = title;
+  void setCategory(String id) {
+    selectedCategoryId = id;
     notifyListeners();
   }
 }

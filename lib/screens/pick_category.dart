@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../themes/app_colors.dart';
 import '../providers/user_selection.dart';
+import '../models/categories.dart';
+import '../services/categories_services.dart';
 
 class PickCategoryScreen extends StatefulWidget {
   const PickCategoryScreen({super.key});
@@ -13,6 +15,32 @@ class PickCategoryScreen extends StatefulWidget {
 
 class _PickCategoryScreenState extends State<PickCategoryScreen> {
   String? selectedGender;
+  List<Category>? categories;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final service = CategoryService();
+      final fetchedCategories = await service.fetchCategories();
+
+      setState(() {
+        categories = fetchedCategories;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading categories: $e');
+      setState(() {
+        categories = [];
+        isLoading = false;
+      });
+    }
+  }
 
   String get genderLabel {
     switch (selectedGender) {
@@ -29,14 +57,10 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      {'title': 'Animes', 'emoji': '✨'},
-      {'title': 'Games', 'emoji': '🎮'},
-      {'title': 'Cinema', 'emoji': '🎬'},
-      {'title': 'TV', 'emoji': '📺'},
-      {'title': 'Athletes', 'emoji': '🏅'},
-      {'title': 'Create Category', 'emoji': '+'},
-    ];
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final displayCategories = categories ?? [];
 
     return Scaffold(
       body: Container(
@@ -161,24 +185,26 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                     mainAxisSpacing: 16,
                     childAspectRatio: 1,
                   ),
-                  itemCount: categories.length,
+                  itemCount: displayCategories.length + 1,
                   itemBuilder: (context, index) {
-                    final category = categories[index];
+                    if (index == displayCategories.length) {
+                      return _CategoryCard(
+                        title: 'Create Category',
+                        emoji: '+',
+                        isCreate: true,
+                        // onTap: () {
+                        // },
+                      );
+                    }
+                    final category = displayCategories[index];
                     return _CategoryCard(
-                      title: category['title']!,
-                      emoji: category['emoji']!,
-                      isCreate: category['title'] == 'Create Category',
+                      title: category.title,
+                      emoji: category.emoji,
                       onTap: () {
-                        final provider = Provider.of<UserSelection>(
+                        Provider.of<UserSelection>(
                           context,
                           listen: false,
-                        );
-                        provider.setCategory(
-                          category['title']!,
-                          category['emoji']!,
-                        );
-
-                        // Exemplo: navegar para próxima tela
+                        ).setCategory(category.title, category.emoji);
                         // Navigator.push(context, MaterialPageRoute(builder: (_) => const NextScreen()));
                       },
                     );
@@ -210,11 +236,11 @@ class _CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent, // permite ripple sobre gradiente
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(25),
       child: InkWell(
         borderRadius: BorderRadius.circular(25),
-        splashColor: Colors.white24, // cor do toque
+        splashColor: Colors.white24,
         onTap: onTap,
         child: Container(
           width: 158,

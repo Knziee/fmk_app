@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "412220401256",
+    "firebase_url": "https://fmkgame-8fefa-default-rtdb.firebaseio.com",
+    "project_id": "fmkgame-8fefa",
+    "storage_bucket": "fmkgame-8fefa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:412220401256:android:5223e13df75ab9d3d53ddd",
+        "android_client_info": {
+          "package_name": "com.example.fmk_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxbVg_3lGCtugWkSNWal2ZZxjRnjvi4oc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
