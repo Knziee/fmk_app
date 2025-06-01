@@ -204,7 +204,7 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                         Provider.of<UserSelection>(
                           context,
                           listen: false,
-                        ).setCategory(category.title, category.emoji);
+                        ).setCategory(category.title);
                         // Navigator.push(context, MaterialPageRoute(builder: (_) => const NextScreen()));
                       },
                     );
