@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../themes/app_colors.dart';
+import '../providers/user_selection.dart';
 
 class PickCategoryScreen extends StatefulWidget {
   const PickCategoryScreen({super.key});
@@ -91,9 +93,16 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                         selectedGender == 'men',
                       ],
                       onPressed: (index) {
+                        final gender = ['women', 'both', 'men'][index];
+
                         setState(() {
-                          selectedGender = ['women', 'both', 'men'][index];
+                          selectedGender = gender;
                         });
+
+                        Provider.of<UserSelection>(
+                          context,
+                          listen: false,
+                        ).setGender(gender);
                       },
                       children: [
                         Container(
@@ -159,6 +168,19 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                       title: category['title']!,
                       emoji: category['emoji']!,
                       isCreate: category['title'] == 'Create Category',
+                      onTap: () {
+                        final provider = Provider.of<UserSelection>(
+                          context,
+                          listen: false,
+                        );
+                        provider.setCategory(
+                          category['title']!,
+                          category['emoji']!,
+                        );
+
+                        // Exemplo: navegar para próxima tela
+                        // Navigator.push(context, MaterialPageRoute(builder: (_) => const NextScreen()));
+                      },
                     );
                   },
                 ),
@@ -176,46 +198,56 @@ class _CategoryCard extends StatelessWidget {
   final String title;
   final String emoji;
   final bool isCreate;
+  final VoidCallback? onTap;
 
   const _CategoryCard({
     required this.title,
     required this.emoji,
     this.isCreate = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 158,
-      height: 158,
-      decoration: BoxDecoration(
-        color: AppColors.white10,
+    return Material(
+      color: Colors.transparent, // permite ripple sobre gradiente
+      borderRadius: BorderRadius.circular(25),
+      child: InkWell(
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: AppColors.white20, width: 1),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(height: isCreate ? 0 : 8),
-
-          Text(
-            emoji,
-            style: GoogleFonts.poppins(
-              fontSize: 48,
-              fontWeight: isCreate ? FontWeight.w200 : FontWeight.w600,
-              color: Colors.white,
-            ),
+        splashColor: Colors.white24, // cor do toque
+        onTap: onTap,
+        child: Container(
+          width: 158,
+          height: 158,
+          decoration: BoxDecoration(
+            color: AppColors.white10,
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: AppColors.white20, width: 1),
           ),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: isCreate ? 20 : 24,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: isCreate ? 0 : 8),
+              Text(
+                emoji,
+                style: GoogleFonts.poppins(
+                  fontSize: 48,
+                  fontWeight: isCreate ? FontWeight.w200 : FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: isCreate ? 20 : 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
