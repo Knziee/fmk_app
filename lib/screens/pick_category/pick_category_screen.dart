@@ -7,7 +7,8 @@ import '../../../themes/app_colors.dart';
 import '../../../providers/user_selection.dart';
 import '../../../models/categories.dart';
 import '../../../services/categories_services.dart';
-import '../options_screen.dart';
+import '../../widgets/background_gradient.dart';
+import '../options_screen/options_screen.dart';
 
 class PickCategoryScreen extends StatefulWidget {
   const PickCategoryScreen({super.key});
@@ -79,32 +80,15 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(
-        body: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppColors.lightOrange, AppColors.darkPink],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0.2, 1.0],
-            ),
-          ),
+        body: BackgroundGradient(
           child: Center(child: CircularProgressIndicator()),
         ),
       );
     }
-
     final displayCategories = categories ?? [];
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.lightOrange, AppColors.darkPink],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.2, 1.0],
-          ),
-        ),
+return Scaffold(
+      body: BackgroundGradient(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: Column(

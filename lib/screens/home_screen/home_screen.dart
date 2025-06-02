@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'pick_category/pick_category_screen.dart';
-import '../themes/app_colors.dart';
+import '../pick_category/pick_category_screen.dart';
+import '../../themes/app_colors.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

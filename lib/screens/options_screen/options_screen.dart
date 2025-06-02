@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'character_choice_screen/character_choice_screen.dart';
+import '../../widgets/background_gradient.dart';
+import '../character_choice_screen/character_choice_screen.dart';
 import 'package:provider/provider.dart';
-import '../widgets/basic_button.dart';
-import '../themes/app_colors.dart';
-import '../models/character.dart';
-import '../services/character_services.dart';
-import '../providers/user_selection.dart';
+import '../../widgets/basic_button.dart';
+import '../../themes/app_colors.dart';
+import '../../models/character.dart';
+import '../../services/character_services.dart';
+import '../../providers/user_selection.dart';
 import 'dart:async';
 
 class OptionsScreen extends StatefulWidget {
@@ -66,18 +67,8 @@ class _OptionsScreenState extends State<OptionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.lightOrange, AppColors.darkPink],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.2, 1.0],
-          ),
-        ),
+return Scaffold(
+      body: BackgroundGradient(
         child: SafeArea(
           child: isLoading
               ? Center(
