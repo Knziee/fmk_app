@@ -4,10 +4,27 @@ import 'package:firebase_core/firebase_core.dart';
 import 'providers/user_selection.dart';
 import 'screens/home_screen/home_screen.dart';
 import './services/character_services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  if (kIsWeb) {
+    // Firebase para Web
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyAxbVg_3lGCtugWkSNWal2ZZxjRnjvi4oc",
+        appId: "1:412220401256:android:5223e13df75ab9d3d53ddd",
+        messagingSenderId: "412220401256",
+        projectId: "fmkgame-8fefa",
+        databaseURL: "https://fmkgame-8fefa-default-rtdb.firebaseio.com",
+        storageBucket: "fmkgame-8fefa.firebasestorage.app",
+      ),
+    );
+  } else {
+    // Firebase para Android/iOS
+    await Firebase.initializeApp();
+  }
 
   runApp(
     MultiProvider(
