@@ -3,14 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'providers/user_selection.dart';
 import 'screens/home_screen.dart';
+import './services/character_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => UserSelection(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserSelection()),
+        Provider<CharacterService>(create: (_) => CharacterService()),
+      ],
       child: const MyApp(),
     ),
   );

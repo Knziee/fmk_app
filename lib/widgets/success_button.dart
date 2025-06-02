@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
 import '../themes/app_colors.dart';
 
-class BasicButton extends StatelessWidget {
-  final String? text;
+class SuccessButton extends StatelessWidget {
+  final String text;
   final VoidCallback onPressed;
-  final double width;
+  final double? width;
   final double height;
-  final bool isShort;
+  final bool isWide; 
 
-  const BasicButton({
+  const SuccessButton({
     super.key,
-    this.text,
+    required this.text,
     required this.onPressed,
-    this.width = 324,
+    this.width,
     this.height = 46,
-    this.isShort = false, 
+    this.isWide = false, 
   });
 
   @override
   Widget build(BuildContext context) {
-    final buttonWidth = isShort ? width * 0.4 : width;
+    final buttonWidth = isWide ? 324.0 : (width ?? 200.0);
+    final gradientColors = [
+      AppColors.lightGreenButton,
+      AppColors.mediumGreenButton,
+    ];
 
     return GestureDetector(
       onTap: onPressed,
@@ -27,15 +31,13 @@ class BasicButton extends StatelessWidget {
         width: buttonWidth,
         height: height,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.lightPinkButton, AppColors.mediumPinkButton],
-          ),
+          gradient: LinearGradient(colors: gradientColors),
           borderRadius: BorderRadius.circular(15),
         ),
         alignment: Alignment.center,
         child: Text(
-          text ?? 'Continue',
-          style: TextStyle(
+          text,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.w600,

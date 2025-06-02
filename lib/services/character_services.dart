@@ -42,4 +42,19 @@ class CharacterService {
 
     return selected;
   }
+
+  Future<void> incrementVote(
+    String categoryId,
+    String characterId,
+    String voteType,
+  ) async {
+    final voteRef = _dbRef.child(
+      '$categoryId/items/$characterId/votes/$voteType',
+    );
+
+    await voteRef.runTransaction((currentData) {
+      final current = (currentData as int?) ?? 0;
+      return Transaction.success(current + 1);
+    });
+  }
 }

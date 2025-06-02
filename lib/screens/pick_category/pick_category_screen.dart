@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../themes/app_colors.dart';
-import '../providers/user_selection.dart';
-import '../models/categories.dart';
-import '../services/categories_services.dart';
-import '../screens/options_screen.dart';
+import '../../../themes/app_colors.dart';
+import '../../../providers/user_selection.dart';
+import '../../../models/categories.dart';
+import '../../../services/categories_services.dart';
+import '../options_screen.dart';
 
 class PickCategoryScreen extends StatefulWidget {
   const PickCategoryScreen({super.key});
@@ -46,6 +47,15 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
         categories = [];
         isLoading = false;
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load categories. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -187,8 +197,16 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                         title: 'Create Category',
                         emoji: '+',
                         isCreate: true,
-                        // onTap: () {
-                        // },
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Create Category feature coming soon!',
+                              ),
+                            ),
+                          );
+                        },
                       );
                     }
                     final category = displayCategories[index];
@@ -209,6 +227,13 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                               ),
                             );
                           });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Please select a gender first.'),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
                         }
                       },
                     );

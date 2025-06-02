@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'pick_category_screen.dart';
+import 'pick_category/pick_category_screen.dart';
 import '../themes/app_colors.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -85,7 +85,10 @@ class HomeScreen extends StatelessWidget {
                     end: Alignment.centerRight,
                   )
                 : LinearGradient(
-                    colors: [Colors.grey.shade400, Colors.grey.shade600],
+                    colors: [
+                      AppColors.lightOrangeButton20,
+                      AppColors.darkOrangeButton20,
+                    ],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -94,9 +97,9 @@ class HomeScreen extends StatelessWidget {
           child: Center(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 28,
-                color: Colors.white,
+                color: enabled ? Colors.white : AppColors.white20,
                 fontWeight: FontWeight.bold,
               ),
             ),

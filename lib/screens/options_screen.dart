@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'character_choice_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/basic_button.dart';
 import '../themes/app_colors.dart';
 import '../models/character.dart';
 import '../services/character_services.dart';
 import '../providers/user_selection.dart';
+import 'dart:async';
 
 class OptionsScreen extends StatefulWidget {
   const OptionsScreen({super.key});
@@ -30,9 +32,26 @@ class _OptionsScreenState extends State<OptionsScreen> {
     final service = CharacterService();
     final fetched = await service.fetchRandomCharacters(selection);
 
+    await Future.wait(
+      fetched.map((character) {
+        final image = NetworkImage(character.imageUrl);
+        final completer = Completer();
+
+        image
+            .resolve(const ImageConfiguration())
+            .addListener(
+              ImageStreamListener(
+                (info, _) => completer.complete(),
+                onError: (error, stackTrace) => completer.complete(),
+              ),
+            );
+
+        return completer.future;
+      }),
+    );
+
     final elapsed = DateTime.now().difference(startTime);
     final minLoadingDuration = Duration(seconds: 2);
-
     if (elapsed < minLoadingDuration) {
       await Future.delayed(minLoadingDuration - elapsed);
     }
@@ -41,6 +60,8 @@ class _OptionsScreenState extends State<OptionsScreen> {
       characters = fetched;
       isLoading = false;
     });
+
+    selection.setCharacters(fetched);
   }
 
   @override
@@ -62,24 +83,58 @@ class _OptionsScreenState extends State<OptionsScreen> {
               ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Text(
-                        'Loading your options...',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        'Finding perfect options...',
+                        style: TextStyle(fontSize: 24, color: Colors.white),
+                      ),
+                      SizedBox(height: 20),
+                      SizedBox(
+                        width: 120,
+                        height: 120,
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 8,
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Icon(
+                                Icons.favorite,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 24),
-                      CircularProgressIndicator(),
                     ],
                   ),
                 )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Transform.translate(
+                        offset: const Offset(10, 30),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                    ),
                     const Padding(
                       padding: EdgeInsets.only(top: 100.0),
                       child: Text(
@@ -123,7 +178,17 @@ class _OptionsScreenState extends State<OptionsScreen> {
                       child: BasicButton(
                         text: 'Continue',
                         onPressed: () {
-                          // Navigate to the next screen or perform an action
+                          Provider.of<UserSelection>(
+                            context,
+                            listen: false,
+                          ).resetSelections();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const CharacterChoiceScreen(),
+                            ),
+                          );
                         },
                       ),
                     ),
