@@ -6,7 +6,8 @@ class SuccessButton extends StatelessWidget {
   final VoidCallback onPressed;
   final double? width;
   final double height;
-  final bool isWide; 
+  final bool isWide;
+  final Widget? child;
 
   const SuccessButton({
     super.key,
@@ -14,7 +15,8 @@ class SuccessButton extends StatelessWidget {
     required this.onPressed,
     this.width,
     this.height = 46,
-    this.isWide = false, 
+    this.isWide = false,
+    this.child,
   });
 
   @override
@@ -25,22 +27,29 @@ class SuccessButton extends StatelessWidget {
       AppColors.mediumGreenButton,
     ];
 
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: buttonWidth,
-        height: height,
+    return Material(
+      borderRadius: BorderRadius.circular(15),
+      color: Colors.transparent, 
+      child: Ink(
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradientColors),
           borderRadius: BorderRadius.circular(15),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: onPressed,
+          child: Container(
+            width: buttonWidth,
+            height: height,
+            alignment: Alignment.center,
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
       ),

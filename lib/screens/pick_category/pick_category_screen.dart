@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:logger/logger.dart';
 import '../../../themes/app_colors.dart';
 import '../../../providers/user_selection.dart';
 import '../../../models/categories.dart';
@@ -25,6 +26,7 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
   String? selectedGender;
   List<Category>? categories;
   bool isLoading = true;
+  final logger = Logger();
 
   @override
   void initState() {
@@ -42,7 +44,8 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
         isLoading = false;
       });
     } catch (e) {
-      print('Error loading categories: $e');
+      logger.e('❌ Error loading categories', error: e);
+
       setState(() {
         categories = [];
         isLoading = false;

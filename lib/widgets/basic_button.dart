@@ -14,31 +14,38 @@ class BasicButton extends StatelessWidget {
     required this.onPressed,
     this.width = 324,
     this.height = 46,
-    this.isShort = false, 
+    this.isShort = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final buttonWidth = isShort ? width * 0.4 : width;
 
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: buttonWidth,
-        height: height,
+    return Material(
+      borderRadius: BorderRadius.circular(15),
+      color: Colors.transparent,
+      child: Ink(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [AppColors.lightPinkButton, AppColors.mediumPinkButton],
           ),
           borderRadius: BorderRadius.circular(15),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          text ?? 'Continue',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: onPressed,
+          child: Container(
+            width: buttonWidth,
+            height: height,
+            alignment: Alignment.center,
+            child: Text(
+              text ?? 'Continue',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
       ),

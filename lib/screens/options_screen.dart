@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'character_choice_screen.dart';
+import 'character_choice_screen/character_choice_screen.dart';
 import 'package:provider/provider.dart';
 import '../widgets/basic_button.dart';
 import '../themes/app_colors.dart';

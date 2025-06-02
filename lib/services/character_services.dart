@@ -1,10 +1,12 @@
 import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:logger/logger.dart';
 import '../models/character.dart';
 import '../providers/user_selection.dart';
 
 class CharacterService {
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
+  final logger = Logger();
 
   Future<List<Character>> fetchRandomCharacters(UserSelection selection) async {
     final snapshot = await _dbRef
@@ -12,7 +14,7 @@ class CharacterService {
         .get();
 
     if (!snapshot.exists) {
-      print('⚠️ Nenhum dado encontrado para essa categoria.');
+      logger.w('⚠️ Nenhum dado encontrado para essa categoria.');
       return [];
     }
 
@@ -34,7 +36,7 @@ class CharacterService {
     }
 
     if (allCharacters.isEmpty) {
-      print('⚠️ Nenhum personagem encontrado após filtragem.');
+      logger.w('⚠️ Nenhum personagem encontrado após filtragem.');
     }
 
     allCharacters.shuffle(Random());

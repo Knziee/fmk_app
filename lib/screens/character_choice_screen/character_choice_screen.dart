@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:fmk_app/models/character.dart';
 import 'package:fmk_app/screens/home_screen.dart';
 import 'package:provider/provider.dart';
-import 'options_screen.dart';
-import '../providers/user_selection.dart';
-import '../themes/app_colors.dart';
-import '../widgets/basic_button.dart';
-import '../widgets/success_button.dart';
-import '../services/character_services.dart';
+import 'package:logger/logger.dart';
+import '../options_screen.dart';
+import '../../providers/user_selection.dart';
+import '../../themes/app_colors.dart';
+import '../../widgets/basic_button.dart';
+import '../../widgets/success_button.dart';
+import '../../services/character_services.dart';
 import 'dart:ui';
 
 class CharacterChoiceScreen extends StatefulWidget {
@@ -20,6 +21,9 @@ class CharacterChoiceScreen extends StatefulWidget {
 class _CharacterChoiceState extends State<CharacterChoiceScreen> {
   bool showAgree = false;
   bool votingCompleted = false;
+  bool isLoading = false;
+  double agreeOpacity = 0.0;
+  final logger = Logger();
 
   Widget _buildChoiceCard({
     required String label,
@@ -90,40 +94,65 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
 
                   if (selectedCharacter != null && showAgree)
                     Positioned(
-                      child: Container(
-                        width: 105,
-                        height: 27,
-                        decoration: BoxDecoration(
-                          color: AppColors.black20,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20),
+                      child: AnimatedOpacity(
+                        opacity: agreeOpacity,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeIn,
+                        child: Container(
+                          width: 105,
+                          height: 27,
+                          decoration: BoxDecoration(
+                            color: AppColors.black20,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
+                            ),
                           ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              percentageText,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          child: TweenAnimationBuilder<String>(
+                            tween: StringTween(
+                              begin: "0%",
+                              end: percentageText,
                             ),
-                            SizedBox(width: 4),
-                            Icon(Icons.thumb_up, size: 14, color: Colors.white),
-                            SizedBox(width: 4),
-                            Text(
-                              'agree',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                            duration: Duration(milliseconds: 1000),
+                            builder:
+                                (
+                                  BuildContext context,
+                                  String value,
+                                  Widget? child,
+                                ) {
+                                  return Center(
+                                    // Use Center instead of alignment parameter
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          value,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(
+                                          Icons.thumb_up,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'agree',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                          ),
                         ),
                       ),
                     ),
@@ -298,16 +327,44 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
                           ),
                         ],
                       )
-                    : Opacity(
-                        opacity: allChoicesMade ? 1.0 : 0.5,
-                        child: IgnorePointer(
-                          ignoring: !allChoicesMade,
-                          child: SuccessButton(
-                            text: 'Done',
-                            isWide: true,
-                            onPressed: _handleDonePressed,
+                    : Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Opacity(
+                            opacity: allChoicesMade ? 1.0 : 0.5,
+                            child: IgnorePointer(
+                              ignoring: !allChoicesMade || isLoading,
+                              child: SuccessButton(
+                                text: 'Done',
+                                isWide: true,
+                                onPressed: _handleDonePressed,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (isLoading)
+                            Positioned(
+                              child: Container(
+                                width: 324, // Mesma largura do botão wide
+                                height: 46, // Mesma altura do seu botão
+                                decoration: BoxDecoration(
+                                  color: AppColors.black40,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
               ),
             ],
@@ -639,7 +696,9 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
   Future<void> _handleDonePressed() async {
     try {
       setState(() {
+        isLoading = true;
         showAgree = true;
+        agreeOpacity = 0.0;
       });
 
       final userSelection = context.read<UserSelection>();
@@ -648,6 +707,11 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
       final marryChar = userSelection.mChoice;
       final killChar = userSelection.kChoice;
 
+      await Future.delayed(Duration(milliseconds: 50));
+
+      setState(() {
+        agreeOpacity = 1.0;
+      });
       final characterService = CharacterService();
 
       if (fChar != null) {
@@ -662,9 +726,10 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
 
       setState(() {
         votingCompleted = true;
+        isLoading = false;
       });
     } catch (e) {
-      print('❌ Error registering votes: $e');
+      logger.e('❌ Error registering votes', error: e);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -681,6 +746,7 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
 
       setState(() {
         showAgree = false;
+        isLoading = false;
       });
     }
   }
@@ -711,5 +777,25 @@ String typeMap(String type) {
       return 'kill';
     default:
       return '';
+  }
+}
+
+class StringTween extends Tween<String> {
+  StringTween({super.begin, super.end});
+
+  @override
+  String lerp(double t) {
+    if (begin == null || end == null) return '';
+
+    // Para animação de porcentagem (remove o % para cálculo)
+    if (begin!.endsWith('%') && end!.endsWith('%')) {
+      final beginValue = double.parse(begin!.substring(0, begin!.length - 1));
+      final endValue = double.parse(end!.substring(0, end!.length - 1));
+      final currentValue = (beginValue + (endValue - beginValue) * t).round();
+      return '$currentValue%';
+    }
+
+    // Padrão: retorna o valor final quando t >= 0.5
+    return t < 0.5 ? begin! : end!;
   }
 }
