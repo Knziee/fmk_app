@@ -12,15 +12,16 @@
 ## ✨ Features  
 
 - ✅ Categories like **Anime**, **Games**, and **Celebrities**  
-- ✅ See how many players agree with your... *interesting* decisions  
-- ✅ Buttery smooth animations (unlike your moral compass)  
+- ✅ See how much players agree with your... *interesting* choices on who to f, marry, or kill  
+- ✅ Smooth animations
 
 ## 🚀 Coming Soon  
 
-- 🎨 Juicier animations (make deaths *dramatic*)  
+- 🎨 Juicier animations 
 - 🛠 Custom categories (add your exes, I won't judge)  
 - 👥 Multiplayer mode (ruin friendships in real-time)  
 - 🗃 Database upgrades (to store your sins properly)  
+- 📱 Better responsiveness
 
 ## 📸 Screenshots  
 

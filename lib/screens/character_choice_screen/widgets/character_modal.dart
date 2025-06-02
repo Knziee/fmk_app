@@ -36,30 +36,39 @@ class _CharacterModalState extends State<CharacterModal> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final userSelection = Provider.of<UserSelection>(context, listen: false);
 
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 60, bottom: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...widget.characters.map(
-              (character) =>
-                  _buildCharacterItem(character, screenWidth, userSelection),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: SuccessButton(
-                text: selected != null ? "Confirm" : "Close",
-                onPressed: () {
-                  widget.onConfirm(selected);
-                  Navigator.pop(context);
-                },
+    return SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            vertical: screenHeight * 0.025,
+            horizontal: screenWidth * 0.04,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...widget.characters.map(
+                (character) => _buildCharacterItem(
+                  character,
+                  screenWidth,
+                  screenHeight,
+                  userSelection,
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: EdgeInsets.only(top: screenHeight * 0.025),
+                child: SuccessButton(
+                  text: selected != null ? "Confirm" : "Close",
+                  onPressed: () {
+                    widget.onConfirm(selected);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -68,21 +77,23 @@ class _CharacterModalState extends State<CharacterModal> {
   Widget _buildCharacterItem(
     Character character,
     double screenWidth,
+    double screenHeight,
     UserSelection userSelection,
   ) {
     final currentType = userSelection.getCharacterType(character.id);
     final alreadySelected = currentType != null;
     final emoji = {'f': '🍆', 'm': '💍', 'k': '🪦'}[currentType];
+    final imageHeight = screenHeight * 0.25;
 
     return GestureDetector(
       onTap: () => _handleCharacterTap(character, currentType, alreadySelected),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.012),
         child: Stack(
           children: [
             Container(
               width: screenWidth,
-              height: 206,
+              height: imageHeight,
               child: ClipRect(
                 child: Stack(
                   fit: StackFit.expand,
@@ -130,7 +141,7 @@ class _CharacterModalState extends State<CharacterModal> {
             ),
             Container(
               width: screenWidth,
-              height: 206,
+              height: imageHeight,
               child: Stack(
                 children: [
                   ColorFiltered(
@@ -185,7 +196,7 @@ class _CharacterModalState extends State<CharacterModal> {
                       character.imageUrl,
                       fit: BoxFit.contain,
                       width: screenWidth,
-                      height: 206,
+                      height: imageHeight,
                     ),
                   ),
                   if (selected == character)
@@ -194,24 +205,26 @@ class _CharacterModalState extends State<CharacterModal> {
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: AppColors.green40,
-                            width: 7,
+                            width: screenWidth * 0.018,
                           ),
                         ),
                       ),
                     ),
                   if (emoji != null)
                     Positioned(
-                      top: 12,
-                      right: 12,
+                      top: screenHeight * 0.015,
+                      right: screenWidth * 0.03,
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(screenWidth * 0.02),
                         decoration: BoxDecoration(
                           color: Colors.black54,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(
+                            screenWidth * 0.02,
+                          ),
                         ),
                         child: Text(
                           emoji,
-                          style: const TextStyle(fontSize: 24),
+                          style: TextStyle(fontSize: screenWidth * 0.06),
                         ),
                       ),
                     ),
@@ -222,13 +235,16 @@ class _CharacterModalState extends State<CharacterModal> {
               bottom: 0,
               left: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.02,
+                  vertical: screenHeight * 0.005,
+                ),
                 color: Colors.black54,
                 child: Text(
                   character.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: screenWidth * 0.05,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

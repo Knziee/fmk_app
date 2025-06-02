@@ -8,6 +8,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -22,21 +25,31 @@ class HomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 160),
+              SizedBox(height: screenHeight * 0.2),
               Text(
                 'F*, Marry,\nKill',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  fontSize: 56,
+                  fontSize: screenWidth * 0.14,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   height: 1.2,
                 ),
               ),
-              const SizedBox(height: 220),
-              _buildMenuButton(context, 'Single Player', enabled: true),
-              const SizedBox(height: 16),
-              _buildMenuButton(context, 'Multiplayer', enabled: false),
+              SizedBox(height: screenHeight * 0.25),
+              _buildMenuButton(
+                context,
+                'Single Player',
+                enabled: true,
+                screenWidth: screenWidth,
+              ),
+              SizedBox(height: screenHeight * 0.02),
+              _buildMenuButton(
+                context,
+                'Multiplayer',
+                enabled: false,
+                screenWidth: screenWidth,
+              ),
             ],
           ),
         ),
@@ -48,10 +61,11 @@ class HomeScreen extends StatelessWidget {
     BuildContext context,
     String label, {
     required bool enabled,
+    required double screenWidth,
   }) {
     return SizedBox(
-      width: 276,
-      height: 84,
+      width: screenWidth * 0.7,
+      height: screenWidth * 0.2,
       child: ElevatedButton(
         onPressed: enabled
             ? () {
@@ -68,7 +82,7 @@ class HomeScreen extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(screenWidth * 0.06),
           ),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -92,13 +106,13 @@ class HomeScreen extends StatelessWidget {
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(screenWidth * 0.06),
           ),
           child: Center(
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 28,
+                fontSize: screenWidth * 0.07,
                 color: enabled ? Colors.white : AppColors.white20,
                 fontWeight: FontWeight.bold,
               ),

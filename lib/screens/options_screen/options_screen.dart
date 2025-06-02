@@ -67,7 +67,10 @@ class _OptionsScreenState extends State<OptionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-return Scaffold(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
       body: BackgroundGradient(
         child: SafeArea(
           child: isLoading
@@ -77,18 +80,21 @@ return Scaffold(
                     children: [
                       Text(
                         'Finding perfect options...',
-                        style: TextStyle(fontSize: 24, color: Colors.white),
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.06,
+                          color: Colors.white,
+                        ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: screenHeight * 0.03),
                       SizedBox(
-                        width: 120,
-                        height: 120,
+                        width: screenWidth * 0.3,
+                        height: screenWidth * 0.3,
                         child: Stack(
                           children: [
                             Center(
                               child: SizedBox(
-                                width: 80,
-                                height: 80,
+                                width: screenWidth * 0.2,
+                                height: screenWidth * 0.2,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 8,
                                   valueColor: AlwaysStoppedAnimation(
@@ -101,7 +107,7 @@ return Scaffold(
                               child: Icon(
                                 Icons.favorite,
                                 color: Colors.white,
-                                size: 40,
+                                size: screenWidth * 0.1,
                               ),
                             ),
                           ],
@@ -113,26 +119,30 @@ return Scaffold(
               : Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Transform.translate(
-                        offset: const Offset(10, 30),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: screenWidth * 0.03,
+                        top: screenHeight * 0.04,
+                      ),
+                      child: Align(
+                        alignment: Alignment.topLeft,
                         child: IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.arrow_back,
                             color: Colors.white,
+                            size: screenWidth * 0.08,
                           ),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 100.0),
+                    Padding(
+                      padding: EdgeInsets.only(top: screenWidth * 0.08),
                       child: Text(
                         'These are your\noptions!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 36,
+                          fontSize: screenWidth * 0.09,
                           height: 1.06,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -146,26 +156,26 @@ return Scaffold(
                           if (characters.isNotEmpty)
                             _buildAvatar(
                               characters[0].imageUrl,
-                              Offset(-50, 115),
-                              248,
+                              Offset(-screenWidth * 0.13, screenHeight * 0.15),
+                              screenWidth * 0.62,
                             ),
                           if (characters.length > 1)
                             _buildAvatar(
                               characters[1].imageUrl,
-                              Offset(-15, -120),
-                              201,
+                              Offset(-screenWidth * 0.04, -screenHeight * 0.15),
+                              screenWidth * 0.5,
                             ),
                           if (characters.length > 2)
                             _buildAvatar(
                               characters[2].imageUrl,
-                              Offset(120, 0),
-                              114,
+                              Offset(screenWidth * 0.3, 0),
+                              screenWidth * 0.28,
                             ),
                         ],
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 62.0),
+                      padding: EdgeInsets.only(bottom: screenHeight * 0.08),
                       child: BasicButton(
                         text: 'Continue',
                         onPressed: () {

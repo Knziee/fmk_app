@@ -36,37 +36,63 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
         userSelection.mChoice != null &&
         userSelection.kChoice != null;
 
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
+    final height = size.height;
+
     return Scaffold(
       body: BackgroundGradient(
         child: SafeArea(
-          child: Column(
-            children: [
-              _buildBackButton(),
-              const SizedBox(height: 20),
-              const Text(
-                'Choose a person to',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        _buildBackButton(width, height),
+                        SizedBox(height: height * 0.02),
+                        Text(
+                          'Choose a person to',
+                          style: TextStyle(
+                            fontSize: width * 0.09,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: height * 0.015),
+                        _buildChoiceCards(
+                          userSelection,
+                          characters,
+                          width,
+                          height,
+                        ),
+                        const Spacer(),
+                        _buildBottomButtons(
+                          userSelection,
+                          allChoicesMade,
+                          width,
+                          height,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildChoiceCards(userSelection, characters),
-              const Spacer(),
-              _buildBottomButtons(userSelection, allChoicesMade),
-            ],
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBackButton() {
+  Widget _buildBackButton(double width, double height) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Transform.translate(
-        offset: const Offset(10, 15),
+        offset: Offset(width * 0.025, height * 0.015),
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -78,6 +104,8 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
   Widget _buildChoiceCards(
     UserSelection userSelection,
     List<Character> characters,
+    double width,
+    double height,
   ) {
     return Column(
       children: [
@@ -139,15 +167,20 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
     );
   }
 
-  Widget _buildBottomButtons(UserSelection userSelection, bool allChoicesMade) {
+  Widget _buildBottomButtons(
+    UserSelection userSelection,
+    bool allChoicesMade,
+    double width,
+    double height,
+  ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 34.0),
+      padding: EdgeInsets.only(bottom: height * 0.04),
       child: votingCompleted
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SuccessButton(text: 'Play Again', onPressed: _handlePlayAgain),
-                const SizedBox(width: 16),
+                SizedBox(width: width * 0.04),
                 BasicButton(
                   text: 'Quit',
                   onPressed: _handleQuit,
@@ -169,25 +202,25 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
                     ),
                   ),
                 ),
-                if (isLoading) _buildLoadingIndicator(),
+                if (isLoading) _buildLoadingIndicator(width, height),
               ],
             ),
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(double width, double height) {
     return Positioned(
       child: Container(
-        width: 324,
-        height: 46,
+        width: width * 0.85,
+        height: height * 0.06,
         decoration: BoxDecoration(
           color: AppColors.black40,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Center(
           child: SizedBox(
-            width: 24,
-            height: 24,
+            width: width * 0.06,
+            height: width * 0.06,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),

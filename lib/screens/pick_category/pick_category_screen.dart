@@ -78,6 +78,9 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     if (isLoading) {
       return const Scaffold(
         body: BackgroundGradient(
@@ -87,149 +90,166 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
     }
     final displayCategories = categories ?? [];
 
-return Scaffold(
+    return Scaffold(
       body: BackgroundGradient(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 60),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Transform.translate(
-                  offset: const Offset(-30, 0),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: screenHeight * 0.04,
+              left: screenWidth * 0.02,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                  size: screenWidth * 0.08,
                 ),
+                onPressed: () => Navigator.pop(context),
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                padding: EdgeInsets.zero,
               ),
-              const SizedBox(height: 20),
-              Center(
-                child: Text(
-                  'Pick a category',
-                  style: GoogleFonts.poppins(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ToggleButtons(
-                      borderRadius: BorderRadius.circular(25),
-                      borderColor: AppColors.white20,
-                      selectedBorderColor: AppColors.white20,
-                      fillColor: AppColors.darkPink20,
-                      selectedColor: Colors.white,
-                      color: Colors.white,
-                      isSelected: genderOptions
-                          .map((g) => selectedGender == g['value'])
-                          .toList(),
-                      onPressed: (index) {
-                        final gender = genderOptions[index]['value'] as String;
-                        setState(() {
-                          selectedGender = gender;
-                        });
-
-                        Provider.of<UserSelection>(
-                          context,
-                          listen: false,
-                        ).setGender(gender);
-                      },
-                      children: genderOptions.map((g) {
-                        return Container(
-                          color: AppColors.white10,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            g['label']!,
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      genderLabel,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: screenHeight * 0.12),
+                  Center(
+                    child: Text(
+                      'Pick a category',
+                      style: GoogleFonts.poppins(
+                        fontSize: screenWidth * 0.1,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1,
                   ),
-                  itemCount: displayCategories.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == displayCategories.length) {
-                      return _CategoryCard(
-                        title: 'Create Category',
-                        emoji: '+',
-                        isCreate: true,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Create Category feature coming soon!',
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }
-                    final category = displayCategories[index];
-                    return _CategoryCard(
-                      title: category.title,
-                      emoji: category.emoji,
-                      onTap: () {
-                        Provider.of<UserSelection>(
-                          context,
-                          listen: false,
-                        ).setCategory(category.id);
-                        if (selectedGender != null) {
-                          Future.delayed(const Duration(milliseconds: 300), () {
-                            Navigator.push(
+                  SizedBox(height: screenHeight * 0.03),
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ToggleButtons(
+                          borderRadius: BorderRadius.circular(
+                            screenWidth * 0.06,
+                          ),
+                          borderColor: AppColors.white20,
+                          selectedBorderColor: AppColors.white20,
+                          fillColor: AppColors.darkPink20,
+                          selectedColor: Colors.white,
+                          color: Colors.white,
+                          isSelected: genderOptions
+                              .map((g) => selectedGender == g['value'])
+                              .toList(),
+                          onPressed: (index) {
+                            final gender =
+                                genderOptions[index]['value'] as String;
+                            setState(() {
+                              selectedGender = gender;
+                            });
+
+                            Provider.of<UserSelection>(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => const OptionsScreen(),
+                              listen: false,
+                            ).setGender(gender);
+                          },
+                          children: genderOptions.map((g) {
+                            return Container(
+                              color: AppColors.white10,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.04,
+                                vertical: screenHeight * 0.01,
+                              ),
+                              child: Text(
+                                g['label']!,
+                                style: TextStyle(fontSize: screenWidth * 0.05),
                               ),
                             );
-                          });
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Please select a gender first.'),
-                              backgroundColor: Colors.orange,
-                            ),
+                          }).toList(),
+                        ),
+                        SizedBox(height: screenHeight * 0.01),
+                        Text(
+                          genderLabel,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: screenWidth * 0.035,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: screenWidth * 0.04,
+                        mainAxisSpacing: screenWidth * 0.04,
+                        childAspectRatio: 1,
+                      ),
+                      itemCount: displayCategories.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == displayCategories.length) {
+                          return _CategoryCard(
+                            title: 'Create Category',
+                            emoji: '+',
+                            isCreate: true,
+                            screenWidth: screenWidth,
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Create Category feature coming soon!',
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         }
+                        final category = displayCategories[index];
+                        return _CategoryCard(
+                          title: category.title,
+                          emoji: category.emoji,
+                          screenWidth: screenWidth,
+                          onTap: () {
+                            Provider.of<UserSelection>(
+                              context,
+                              listen: false,
+                            ).setCategory(category.id);
+                            if (selectedGender != null) {
+                              Future.delayed(
+                                const Duration(milliseconds: 300),
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const OptionsScreen(),
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Please select a gender first.',
+                                  ),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                            }
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.04),
+                ],
               ),
-              const SizedBox(height: 32),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -240,11 +260,13 @@ class _CategoryCard extends StatelessWidget {
   final String title;
   final String emoji;
   final bool isCreate;
+  final double screenWidth;
   final VoidCallback? onTap;
 
   const _CategoryCard({
     required this.title,
     required this.emoji,
+    required this.screenWidth,
     this.isCreate = false,
     this.onTap,
   });
@@ -253,27 +275,27 @@ class _CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(25),
+      borderRadius: BorderRadius.circular(screenWidth * 0.06),
       child: InkWell(
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(screenWidth * 0.06),
         splashColor: Colors.white24,
         onTap: onTap,
         child: Container(
-          width: 158,
-          height: 158,
+          width: screenWidth * 0.4,
+          height: screenWidth * 0.4,
           decoration: BoxDecoration(
             color: AppColors.white10,
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(screenWidth * 0.06),
             border: Border.all(color: AppColors.white20, width: 1),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: isCreate ? 0 : 8),
+              SizedBox(height: isCreate ? 0 : screenWidth * 0.02),
               Text(
                 emoji,
                 style: GoogleFonts.poppins(
-                  fontSize: 48,
+                  fontSize: screenWidth * 0.12,
                   fontWeight: isCreate ? FontWeight.w200 : FontWeight.w600,
                   color: Colors.white,
                 ),
@@ -282,7 +304,7 @@ class _CategoryCard extends StatelessWidget {
                 title,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
-                  fontSize: isCreate ? 20 : 24,
+                  fontSize: isCreate ? screenWidth * 0.05 : screenWidth * 0.06,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),

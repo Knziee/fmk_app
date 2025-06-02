@@ -30,17 +30,21 @@ class ChoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = screenWidth * 0.9;
+    final cardHeight = cardWidth * 0.5;
+    final footerHeight = cardHeight * 0.235;
     final int percentageInt = int.parse(percentageText.replaceAll('%', ''));
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 344,
-        height: 170,
-        margin: const EdgeInsets.symmetric(vertical: 12),
+        width: cardWidth,
+        height: cardHeight,
+        margin: EdgeInsets.symmetric(vertical: cardHeight * 0.07),
         decoration: BoxDecoration(
           border: Border.all(color: borderColor.withOpacity(0.4), width: 1),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(cardHeight * 0.12),
         ),
         child: Column(
           children: [
@@ -49,37 +53,35 @@ class ChoiceCard extends StatelessWidget {
                 children: [
                   Center(
                     child: selectedCharacter == null
-                        ? _buildPlaceholder()
-                        : _buildCharacterImage(),
+                        ? _buildPlaceholder(cardHeight * 0.11)
+                        : _buildCharacterImage(cardHeight * 0.12),
                   ),
                   if (selectedCharacter != null && showAgree)
                     Positioned(
-                      child: AgreePercentage(
-                        percentage: percentageInt,
-                      ), 
+                      child: AgreePercentage(percentage: percentageInt),
                     ),
                 ],
               ),
             ),
-            _buildFooter(),
+            _buildFooter(footerHeight),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(double fontSize) {
     return Text(
       'Press to choose',
-      style: TextStyle(color: AppColors.white80, fontSize: 16),
+      style: TextStyle(color: AppColors.white80, fontSize: fontSize),
     );
   }
 
-  Widget _buildCharacterImage() {
+  Widget _buildCharacterImage(double radius) {
     return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(radius),
+        topRight: Radius.circular(radius),
       ),
       child: Stack(
         fit: StackFit.expand,
@@ -95,15 +97,15 @@ class ChoiceCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(double height) {
     return Container(
-      height: 40,
+      height: height,
       width: double.infinity,
       decoration: BoxDecoration(
         color: footerColor,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(height * 0.5),
+          bottomRight: Radius.circular(height * 0.5),
         ),
       ),
       child: Center(
@@ -112,9 +114,9 @@ class ChoiceCard extends StatelessWidget {
           children: [
             Text(
               '$emoji $label',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: height * 0.5,
                 fontWeight: FontWeight.w400,
               ),
             ),

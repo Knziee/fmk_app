@@ -10,7 +10,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kIsWeb) {
-    // Firebase para Web
     await Firebase.initializeApp(
       options: const FirebaseOptions(
         apiKey: "AIzaSyAxbVg_3lGCtugWkSNWal2ZZxjRnjvi4oc",
@@ -22,7 +21,6 @@ void main() async {
       ),
     );
   } else {
-    // Firebase para Android/iOS
     await Firebase.initializeApp();
   }
 
