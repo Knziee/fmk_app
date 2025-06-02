@@ -5,9 +5,13 @@ class AppColors {
   static const Color darkPink = Color(0xFFEC3666);
   static const Color lightOrangeButton = Color(0xFFFEA401);
   static const Color darkOrangeButton = Color(0xFFF87D0A);
+  static const Color lightPinkButton = Color(0xFFFCB3A8);
+  static const Color mediumPinkButton = Color(0xFFFD7991);
 
   static const Color white10 = Color.fromRGBO(255, 255, 255, 0.1);
   static const Color white20 = Color.fromRGBO(255, 255, 255, 0.2);
+  static const Color white40 = Color.fromRGBO(255, 255, 255, 0.4);
+  static const Color black25 = Color.fromRGBO(0, 0, 0, 0.25);
   static const Color darkPink20 = Color.fromRGBO(236, 54, 102, 0.2);
 
   static const Color backgroundGradientButtonHome = lightOrangeButton;

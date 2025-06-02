@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'pick_category.dart';
+import 'pick_category_screen.dart';
 import '../themes/app_colors.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -64,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                   );
                 }
               }
-            : null, // botão desabilitado se onPressed for null
+            : null,
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(

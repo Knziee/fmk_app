@@ -5,6 +5,7 @@ import '../themes/app_colors.dart';
 import '../providers/user_selection.dart';
 import '../models/categories.dart';
 import '../services/categories_services.dart';
+import '../screens/options_screen.dart';
 
 class PickCategoryScreen extends StatefulWidget {
   const PickCategoryScreen({super.key});
@@ -12,6 +13,12 @@ class PickCategoryScreen extends StatefulWidget {
   @override
   State<PickCategoryScreen> createState() => _PickCategoryScreenState();
 }
+
+const genderOptions = [
+  {'label': '♀️', 'value': 'female'},
+  {'label': '♀️♂️', 'value': 'both'},
+  {'label': '♂️', 'value': 'male'},
+];
 
 class _PickCategoryScreenState extends State<PickCategoryScreen> {
   String? selectedGender;
@@ -34,7 +41,7 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
         isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading categories: $e');
+      print('Error loading categories: $e');
       setState(() {
         categories = [];
         isLoading = false;
@@ -44,9 +51,9 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
 
   String get genderLabel {
     switch (selectedGender) {
-      case 'women':
+      case 'female':
         return 'Choose between women';
-      case 'men':
+      case 'male':
         return 'Choose between men';
       case 'both':
         return 'Choose between both';
@@ -58,8 +65,21 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.lightOrange, AppColors.darkPink],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.2, 1.0],
+            ),
+          ),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
     }
+
     final displayCategories = categories ?? [];
 
     return Scaffold(
@@ -111,14 +131,11 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                       fillColor: AppColors.darkPink20,
                       selectedColor: Colors.white,
                       color: Colors.white,
-                      isSelected: [
-                        selectedGender == 'women',
-                        selectedGender == 'both',
-                        selectedGender == 'men',
-                      ],
+                      isSelected: genderOptions
+                          .map((g) => selectedGender == g['value'])
+                          .toList(),
                       onPressed: (index) {
-                        final gender = ['women', 'both', 'men'][index];
-
+                        final gender = genderOptions[index]['value'] as String;
                         setState(() {
                           selectedGender = gender;
                         });
@@ -128,41 +145,19 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                           listen: false,
                         ).setGender(gender);
                       },
-                      children: [
-                        Container(
+                      children: genderOptions.map((g) {
+                        return Container(
                           color: AppColors.white10,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8,
                           ),
-                          child: const Text(
-                            '♀️',
-                            style: TextStyle(fontSize: 20),
+                          child: Text(
+                            g['label']!,
+                            style: const TextStyle(fontSize: 20),
                           ),
-                        ),
-                        Container(
-                          color: AppColors.white10,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: const Text(
-                            '♀️♂️',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                        Container(
-                          color: AppColors.white10,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: const Text(
-                            '♂️',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -204,8 +199,17 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                         Provider.of<UserSelection>(
                           context,
                           listen: false,
-                        ).setCategory(category.title);
-                        // Navigator.push(context, MaterialPageRoute(builder: (_) => const NextScreen()));
+                        ).setCategory(category.id);
+                        if (selectedGender != null) {
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const OptionsScreen(),
+                              ),
+                            );
+                          });
+                        }
                       },
                     );
                   },
