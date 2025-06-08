@@ -9,6 +9,7 @@ class AppColors {
   static const Color mediumPinkButton = Color(0xFFFD7991);
   static const Color lightGreenButton = Color(0xFF4ADE80);
   static const Color mediumGreenButton = Color(0xFF22C55E);
+  static const Color yellowIcon = Color(0xFFF9E39B);
 
   static const Color white10 = Color.fromRGBO(255, 255, 255, 0.1);
   static const Color white20 = Color.fromRGBO(255, 255, 255, 0.2);

@@ -8,6 +8,8 @@ class UserSelection extends ChangeNotifier {
   Character? fChoice;
   Character? mChoice;
   Character? kChoice;
+  int? avatarIndex;
+  String? nickname;
 
   void setGender(String gender) {
     selectedGender = gender;
@@ -75,11 +77,20 @@ class UserSelection extends ChangeNotifier {
     notifyListeners();
   }
 
-
   void resetSelections() {
     fChoice = null;
     mChoice = null;
     kChoice = null;
+    notifyListeners();
+  }
+
+  void setAvatarIndex(int index) {
+    avatarIndex = index;
+    notifyListeners();
+  }
+
+  void setNickname(String name) {
+    nickname = name;
     notifyListeners();
   }
 }

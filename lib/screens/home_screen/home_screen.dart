@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../pick_avatar_screen/pick_avatar_screen.dart';
 import '../pick_category/pick_category_screen.dart';
 import '../../themes/app_colors.dart';
 
@@ -40,14 +41,12 @@ class HomeScreen extends StatelessWidget {
               _buildMenuButton(
                 context,
                 'Single Player',
-                enabled: true,
                 screenWidth: screenWidth,
               ),
               SizedBox(height: screenHeight * 0.02),
               _buildMenuButton(
                 context,
                 'Multiplayer',
-                enabled: false,
                 screenWidth: screenWidth,
               ),
             ],
@@ -60,25 +59,29 @@ class HomeScreen extends StatelessWidget {
   Widget _buildMenuButton(
     BuildContext context,
     String label, {
-    required bool enabled,
     required double screenWidth,
   }) {
     return SizedBox(
       width: screenWidth * 0.7,
       height: screenWidth * 0.2,
       child: ElevatedButton(
-        onPressed: enabled
-            ? () {
-                if (label == 'Single Player') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PickCategoryScreen(),
-                    ),
-                  );
-                }
-              }
-            : null,
+        onPressed: () {
+          if (label == 'Single Player') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PickCategoryScreen(),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PickAvatarScreen(),
+              ),
+            );
+          }
+        },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
@@ -89,23 +92,11 @@ class HomeScreen extends StatelessWidget {
         ),
         child: Ink(
           decoration: BoxDecoration(
-            gradient: enabled
-                ? const LinearGradient(
-                    colors: [
-                      AppColors.lightOrangeButton,
-                      AppColors.darkOrangeButton,
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  )
-                : LinearGradient(
-                    colors: [
-                      AppColors.lightOrangeButton20,
-                      AppColors.darkOrangeButton20,
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+            gradient: const LinearGradient(
+              colors: [AppColors.lightOrangeButton, AppColors.darkOrangeButton],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
             borderRadius: BorderRadius.circular(screenWidth * 0.06),
           ),
           child: Center(
@@ -113,7 +104,7 @@ class HomeScreen extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: screenWidth * 0.07,
-                color: enabled ? Colors.white : AppColors.white20,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),

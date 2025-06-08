@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../widgets/avatar_circle.dart';
 import '../../widgets/background_gradient.dart';
 import '../character_choice_screen/character_choice_screen.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/basic_button.dart';
-import '../../themes/app_colors.dart';
 import '../../models/character.dart';
 import '../../services/character_services.dart';
 import '../../providers/user_selection.dart';
@@ -154,22 +154,34 @@ class _OptionsScreenState extends State<OptionsScreen> {
                         alignment: Alignment.center,
                         children: [
                           if (characters.isNotEmpty)
-                            _buildAvatar(
-                              characters[0].imageUrl,
-                              Offset(-screenWidth * 0.13, screenHeight * 0.15),
-                              screenWidth * 0.62,
+                            AvatarCircle(
+                              imageProvider: NetworkImage(
+                                characters[0].imageUrl,
+                              ),
+                              offset: Offset(
+                                -screenWidth * 0.13,
+                                screenHeight * 0.15,
+                              ),
+                              size: screenWidth * 0.62,
                             ),
                           if (characters.length > 1)
-                            _buildAvatar(
-                              characters[1].imageUrl,
-                              Offset(-screenWidth * 0.04, -screenHeight * 0.15),
-                              screenWidth * 0.5,
+                            AvatarCircle(
+                              imageProvider: NetworkImage(
+                                characters[1].imageUrl,
+                              ),
+                              offset: Offset(
+                                -screenWidth * 0.04,
+                                -screenHeight * 0.15,
+                              ),
+                              size: screenWidth * 0.5,
                             ),
                           if (characters.length > 2)
-                            _buildAvatar(
-                              characters[2].imageUrl,
-                              Offset(screenWidth * 0.3, 0),
-                              screenWidth * 0.28,
+                            AvatarCircle(
+                              imageProvider: NetworkImage(
+                                characters[2].imageUrl,
+                              ),
+                              offset: Offset(screenWidth * 0.3, 0),
+                              size: screenWidth * 0.28,
                             ),
                         ],
                       ),
@@ -195,31 +207,6 @@ class _OptionsScreenState extends State<OptionsScreen> {
                     ),
                   ],
                 ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvatar(String imageUrl, Offset offset, double size) {
-    return Transform.translate(
-      offset: offset,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.white40, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black25,
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          image: DecorationImage(
-            image: NetworkImage(imageUrl),
-            fit: BoxFit.cover,
-          ),
         ),
       ),
     );
