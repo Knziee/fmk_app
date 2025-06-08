@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/avatar_circle.dart';
 import '../../widgets/background_gradient.dart';
-import '../character_choice_screen/character_choice_screen.dart';
+import '../characters_choices_screen/characters_choices_screen.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/basic_button.dart';
 import '../../models/character.dart';

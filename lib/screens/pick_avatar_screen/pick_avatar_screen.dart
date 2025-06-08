@@ -94,7 +94,6 @@ class _PickAvatarScreenState extends State<PickAvatarScreen> {
                           ),
                           offset: Offset.zero,
                           size: screenWidth * 0.7,
-                          transparentBackground: true,
                         ),
                         Positioned(
                           bottom: 10,

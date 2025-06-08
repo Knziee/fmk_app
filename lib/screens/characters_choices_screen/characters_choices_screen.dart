@@ -10,8 +10,8 @@ import '../../themes/app_colors.dart';
 import '../../widgets/basic_button.dart';
 import '../../widgets/success_button.dart';
 import '../../services/character_services.dart';
-import './widgets/choice_card.dart';
-import './widgets/character_modal.dart';
+import 'widgets/choice_card.dart';
+import 'widgets/character_modal.dart';
 
 class CharacterChoiceScreen extends StatefulWidget {
   const CharacterChoiceScreen({super.key});

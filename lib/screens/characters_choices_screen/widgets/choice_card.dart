@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../models/character.dart';
 import '../../../themes/app_colors.dart';
-import './agree_percentage.dart';
+import 'agree_percentage.dart';
 
 class ChoiceCard extends StatelessWidget {
   final String label;

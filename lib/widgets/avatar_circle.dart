@@ -5,14 +5,12 @@ class AvatarCircle extends StatelessWidget {
   final ImageProvider imageProvider;
   final Offset offset;
   final double size;
-  final bool transparentBackground;
 
   const AvatarCircle({
     super.key,
     required this.imageProvider,
     required this.offset,
     required this.size,
-    this.transparentBackground = false,
   });
 
   @override
@@ -24,7 +22,6 @@ class AvatarCircle extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: transparentBackground ? Colors.transparent : null,
           border: Border.all(color: AppColors.white40, width: 2),
           boxShadow: [
             BoxShadow(

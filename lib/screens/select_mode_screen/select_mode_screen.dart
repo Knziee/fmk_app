@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fmk_app/screens/lobby_screen/lobby_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_selection.dart';
@@ -134,7 +135,7 @@ class _SelectModeScreenState extends State<SelectModeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const SelectModeScreen(),
+                              builder: (context) => const LobbyScreen(),
                             ),
                           );
                         },
