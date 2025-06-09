@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/lobby_provider.dart';
+import '../../providers/user_selection.dart';
 import '../../widgets/background_gradient.dart';
 import '../../widgets/basic_button.dart';
 import '../../widgets/player_choices_card.dart';
+// import '../lobby_screen/lobby_screen.dart';
 
 class PlayersChoicesScreen extends StatefulWidget {
   const PlayersChoicesScreen({super.key});
@@ -11,54 +15,36 @@ class PlayersChoicesScreen extends StatefulWidget {
 }
 
 class _PlayerChoicesScreenState extends State<PlayersChoicesScreen> {
-  int currentAvatarIndex = 1;
-  final int totalAvatars = 5;
-  int currentCharacterIndex = 0;
+  int visibleCount = 0;
 
-  final List<Map<String, dynamic>> mockPlayers = [
-    {
-      'currentAvatarIndex': 1,
-      'name': 'Bombardino',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c2', 'm': 'c3', 'k': 'c1'},
-    },
-    {
-      'currentAvatarIndex': 2,
-      'name': 'Thugthung',
-      'isCurrentPlayer': true,
-      'choices': {'f': 'c1', 'm': 'c2', 'k': 'c3'},
-    },
-    {
-      'currentAvatarIndex': 3,
-      'name': 'Sahurino',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c3', 'm': 'c1', 'k': 'c2'},
-    },
-    {
-      'currentAvatarIndex': 4,
-      'name': 'Crocodilo',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c1', 'm': 'c3', 'k': 'c2'},
-    },
-    {
-      'currentAvatarIndex': 5,
-      'name': 'Pastaroni',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c2', 'm': 'c1', 'k': 'c3'},
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    startRevealAnimation();
+  }
 
-  final List<Map<String, String>> characters = [
-    {'id': 'c1', 'name': 'Scarlett Johansson'},
-    {'id': 'c2', 'name': 'Emma Watson'},
-    {'id': 'c3', 'name': 'Margot Robbie'},
-  ];
+  void startRevealAnimation() async {
+    final totalPlayers = context.read<LobbyProvider>().players.length;
+
+    for (int i = 0; i < totalPlayers; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
+      setState(() {
+        visibleCount++;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final lobbyProvider = context.watch<LobbyProvider>();
+    final userSelection = context.watch<UserSelection>();
+
+    final playersFromProvider = lobbyProvider.players;
+    final charactersFromProvider = userSelection.selectedCharacters;
+
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
     final listHeight = screenHeight * 0.8;
 
     return Scaffold(
@@ -72,24 +58,46 @@ class _PlayerChoicesScreenState extends State<PlayersChoicesScreen> {
               SizedBox(
                 height: listHeight,
                 child: ListView.builder(
-                  itemCount: mockPlayers.length,
+                  itemCount: visibleCount,
                   itemBuilder: (context, index) {
-                    final player = mockPlayers[index];
+                    final player = playersFromProvider[index];
+                    final currentPlayerId = context
+                        .read<LobbyProvider>()
+                        .localPlayer
+                        ?.id;
+                    final isCurrentPlayer = player.id == currentPlayerId;
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: PlayerChoicesCard(
-                        playerName: player['name'],
-                        characters: characters,
-                        choices: player['choices'],
-                        isCurrentPlayer: player['isCurrentPlayer'] ?? false,
+                    return TweenAnimationBuilder(
+                      tween: Tween<double>(begin: 20, end: 0),
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOut,
+                      builder: (context, double offset, child) {
+                        return Opacity(
+                          opacity: 1,
+                          child: Transform.translate(
+                            offset: Offset(0, offset),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: PlayerChoicesCard(
+                          playerName: player.nickname,
+                          characters: charactersFromProvider,
+                          choices: player.choices,
+                          isCurrentPlayer: isCurrentPlayer,
+                        ),
                       ),
                     );
                   },
                 ),
               ),
               SizedBox(height: 4),
-              BasicButton(text: 'play again', onPressed: () => {}),
+              Opacity(
+                opacity: 0.5,
+                child: BasicButton(text: 'WIP', onPressed: () {}),
+              ),
             ],
           ),
         ),

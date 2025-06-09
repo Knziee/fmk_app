@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fmk_app/screens/lobby_screen/lobby_screen.dart';
+import 'package:fmk_app/screens/pick_category/pick_category_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import '../../models/player.dart';
+import '../../providers/lobby_provider.dart';
 import '../../providers/user_selection.dart';
 import '../../widgets/background_gradient.dart';
 import '../../widgets/basic_button.dart';
@@ -21,7 +25,16 @@ class _SelectModeScreenState extends State<SelectModeScreen> {
   @override
   void initState() {
     super.initState();
+
     _codeController.addListener(() {
+      final text = _codeController.text;
+      if (text != text.toUpperCase()) {
+        final selection = _codeController.selection;
+        _codeController.value = TextEditingValue(
+          text: text.toUpperCase(),
+          selection: selection,
+        );
+      }
       setState(() {
         isInputValid = _codeController.text.trim().isNotEmpty;
       });
@@ -96,7 +109,14 @@ class _SelectModeScreenState extends State<SelectModeScreen> {
                     title: 'Random',
                     description:
                         'The persons are random but based on the category you choose!',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PickCategoryScreen(),
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: screenHeight * 0.01),
                   Opacity(
@@ -109,7 +129,7 @@ class _SelectModeScreenState extends State<SelectModeScreen> {
                       onTap: () {},
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.16),
+                  SizedBox(height: screenHeight * 0.10),
                   Center(
                     child: Text(
                       'Or join a game with a code?',
@@ -123,21 +143,61 @@ class _SelectModeScreenState extends State<SelectModeScreen> {
                   ),
                   SizedBox(height: screenHeight * 0.02),
                   CustomTextInput(hintText: '', controller: _codeController),
-                  SizedBox(height: screenHeight * 0.04),
+                  SizedBox(height: screenHeight * 0.05),
                   Opacity(
                     opacity: isInputValid ? 1.0 : 0.5,
                     child: Padding(
                       padding: EdgeInsets.only(bottom: screenHeight * 0.08),
                       child: BasicButton(
                         text: 'Join',
-                        onPressed: () {
+                        onPressed: () async {
                           if (!isInputValid) return;
-                          Navigator.push(
+
+                          final lobbyProvider = Provider.of<LobbyProvider>(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => const LobbyScreen(),
-                            ),
+                            listen: false,
                           );
+                          final userSelection = Provider.of<UserSelection>(
+                            context,
+                            listen: false,
+                          );
+
+                          final player = Player(
+                            id: const Uuid().v4(),
+                            nickname: userSelection.nickname ?? 'Player',
+                            avatarId: userSelection.avatarIndex ?? 1,
+                            choices: {},
+                            ready: false,
+                          );
+                          bool joined = await lobbyProvider.joinLobby(
+                            _codeController.text.trim(),
+                            player,
+                          );
+
+                          if (joined) {
+                            final userSelection = context.read<UserSelection>();
+                            userSelection.setCategory(
+                              lobbyProvider.categoryId!,
+                            );
+                            userSelection.setGender(
+                              lobbyProvider.selectedGender!,
+                            );
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LobbyScreen(),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Invalid code or error while joining.',
+                                ),
+                              ),
+                            );
+                          }
                         },
                       ),
                     ),

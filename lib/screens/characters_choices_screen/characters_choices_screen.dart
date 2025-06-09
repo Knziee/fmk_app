@@ -3,7 +3,9 @@ import 'package:fmk_app/models/character.dart';
 import 'package:fmk_app/screens/home_screen/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
+import '../../providers/lobby_provider.dart';
 import '../../widgets/background_gradient.dart';
+import '../character_votes_screen/character_votes_screen.dart';
 import '../options_screen/options_screen.dart';
 import '../../providers/user_selection.dart';
 import '../../themes/app_colors.dart';
@@ -25,6 +27,8 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
   bool votingCompleted = false;
   bool isLoading = false;
   double agreeOpacity = 0.0;
+  bool waitingOthers = false;
+
   final logger = Logger();
 
   @override
@@ -175,7 +179,7 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
   ) {
     return Padding(
       padding: EdgeInsets.only(bottom: height * 0.04),
-      child: votingCompleted
+      child: votingCompleted && !waitingOthers
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -191,17 +195,27 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
           : Stack(
               alignment: Alignment.center,
               children: [
-                Opacity(
-                  opacity: allChoicesMade ? 1.0 : 0.5,
-                  child: IgnorePointer(
-                    ignoring: !allChoicesMade || isLoading,
-                    child: SuccessButton(
-                      text: 'Done',
-                      isWide: true,
-                      onPressed: _handleDonePressed,
+                if (!waitingOthers)
+                  Opacity(
+                    opacity: allChoicesMade ? 1.0 : 0.5,
+                    child: IgnorePointer(
+                      ignoring: !allChoicesMade || isLoading,
+                      child: SuccessButton(
+                        text: 'Done',
+                        isWide: true,
+                        onPressed: _handleDonePressed,
+                      ),
                     ),
                   ),
-                ),
+                if (waitingOthers)
+                  const Text(
+                    "Waiting for other players...",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 if (isLoading) _buildLoadingIndicator(width, height),
               ],
             ),
@@ -277,23 +291,77 @@ class _CharacterChoiceState extends State<CharacterChoiceScreen> {
       setState(() => agreeOpacity = 1.0);
 
       final userSelection = context.read<UserSelection>();
-      final categoryId = userSelection.selectedCategoryId!;
+      final lobbyProvider = context.read<LobbyProvider>();
       final characterService = CharacterService();
 
-      await _registerVotes(userSelection, characterService, categoryId);
+      final categoryId = userSelection.selectedCategoryId;
+      if (categoryId == null) {
+        setState(() {
+          showAgree = false;
+          isLoading = false;
+        });
+        return;
+      }
 
-      setState(() {
-        votingCompleted = true;
-        isLoading = false;
-      });
-    } catch (e) {
-      logger.e('❌ Error registering votes', error: e);
+      final votes = {
+        'f': userSelection.fChoice?.id ?? '',
+        'marry': userSelection.mChoice?.id ?? '',
+        'kill': userSelection.kChoice?.id ?? '',
+      };
+
+      if (votes.values.any((v) => v.isEmpty)) {
+        _showErrorSnackbar(context);
+        setState(() {
+          showAgree = false;
+          isLoading = false;
+        });
+        return;
+      }
+
+      if (userSelection.gameMode == 'multiplayer') {
+        await lobbyProvider.updateChoices(votes);
+
+        await _registerVotes(userSelection, characterService, categoryId);
+
+        setState(() {
+          votingCompleted = true;
+          isLoading = false;
+          waitingOthers = true;
+        });
+
+        _watchAllVotesSubmitted();
+      } else {
+        await _registerVotes(userSelection, characterService, categoryId);
+
+        setState(() {
+          votingCompleted = true;
+          isLoading = false;
+        });
+      }
+    } catch (e, stack) {
+      logger.e('❌ Error', error: e, stackTrace: stack);
       _showErrorSnackbar(context);
       setState(() {
         showAgree = false;
         isLoading = false;
       });
     }
+  }
+
+  void _watchAllVotesSubmitted() {
+    final lobbyProvider = context.read<LobbyProvider>();
+
+    lobbyProvider.watchAllPlayersVoted().listen((allVoted) async {
+      if (allVoted) {
+        await Future.delayed(const Duration(seconds: 4));
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const CharacterVotesScreen()),
+          );
+        }
+      }
+    });
   }
 
   Future<void> _registerVotes(

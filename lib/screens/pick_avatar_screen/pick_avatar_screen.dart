@@ -128,12 +128,12 @@ class _PickAvatarScreenState extends State<PickAvatarScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.06),
+                  SizedBox(height: screenHeight * 0.02),
                   CustomTextInput(
                     hintText: 'YourNickNameHere',
                     controller: _nicknameController,
                   ),
-                  SizedBox(height: screenHeight * 0.06),
+                  SizedBox(height: screenHeight * 0.04),
                   Opacity(
                     opacity: isInputValid ? 1.0 : 0.5,
                     child: Padding(

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../themes/app_colors.dart';
 import 'avatar_circle.dart';
+import '../models/character.dart';
 
 class PlayerChoicesCard extends StatelessWidget {
   final String playerName;
-  final List<Map<String, String>> characters;
+  final List<Character> characters;
   final Map<String, String> choices;
   final bool isCurrentPlayer;
 
@@ -53,22 +54,23 @@ class PlayerChoicesCard extends StatelessWidget {
                   final character = entry.value;
 
                   Widget? emojiWidget;
-                  if (choices['f'] == character['id']) {
+                  if (choices['f'] == character.id) {
                     emojiWidget = const Text(
                       '🍆',
                       style: TextStyle(fontSize: 20),
                     );
-                  } else if (choices['m'] == character['id']) {
+                  } else if (choices['marry'] == character.id) {
                     emojiWidget = const Text(
                       '💍',
                       style: TextStyle(fontSize: 20),
                     );
-                  } else if (choices['k'] == character['id']) {
+                  } else if (choices['kill'] == character.id) {
                     emojiWidget = const Text(
                       '🪦',
                       style: TextStyle(fontSize: 20),
                     );
                   }
+
                   return Padding(
                     padding: EdgeInsets.only(
                       right: index < characters.length - 1 ? 12 : 0,
@@ -77,9 +79,7 @@ class PlayerChoicesCard extends StatelessWidget {
                       clipBehavior: Clip.none,
                       children: [
                         AvatarCircle(
-                          imageProvider: AssetImage(
-                            'assets/images/avatars/$index.png',
-                          ),
+                          imageProvider: NetworkImage(character.imageUrl),
                           offset: Offset.zero,
                           size: 48,
                         ),

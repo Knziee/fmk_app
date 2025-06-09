@@ -1,10 +1,15 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../../providers/lobby_provider.dart';
+import '../../providers/user_selection.dart';
+import '../../services/character_services.dart';
 import '../../widgets/background_gradient.dart';
 import '../../widgets/cancel_button.dart';
 import '../../widgets/player_card.dart';
 import '../../widgets/success_button.dart';
-import '../character_votes_screen/character_votes_screen.dart';
+import '../options_screen/options_screen.dart';
 import 'widgets/lobby_code_input.dart';
 
 class LobbyScreen extends StatefulWidget {
@@ -15,63 +20,92 @@ class LobbyScreen extends StatefulWidget {
 }
 
 class _LobbyScreenState extends State<LobbyScreen> {
-  final TextEditingController _codeController = TextEditingController();
-  final List<Map<String, dynamic>> mockPlayers = [
-    {
-      'currentAvatarIndex': 1,
-      'name': 'Bombardino',
-      'isReady': true,
-      'isCurrentPlayer': false,
-    },
-    {
-      'currentAvatarIndex': 2,
-      'name': 'Thugthung',
-      'isReady': false,
-      'isCurrentPlayer': true,
-    },
-    {
-      'currentAvatarIndex': 3,
-      'name': 'Sahurino',
-      'isReady': false,
-      'isCurrentPlayer': false,
-    },
-    {
-      'currentAvatarIndex': 4,
-      'name': 'Crocodilo',
-      'isReady': true,
-      'isCurrentPlayer': false,
-    },
-    {
-      'currentAvatarIndex': 5,
-      'name': 'Pastaroni',
-      'isReady': false,
-      'isCurrentPlayer': false,
-    },
-  ];
-  bool isReadyButton = false;
+  bool hasNavigated = false;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _codeController.addListener(() {
-      setState(() {
-        isInputValid = _codeController.text.trim().isNotEmpty;
-      });
-    });
-  }
 
-  @override
-  void dispose() {
-    _codeController.dispose();
-    super.dispose();
-  }
+    final lobbyProvider = Provider.of<LobbyProvider>(context, listen: false);
 
-  bool isInputValid = false;
+    lobbyProvider.resetReadyAndChoicesForAll();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final lobbyProvider = Provider.of<LobbyProvider>(context);
+    final players = lobbyProvider.players;
+    final currentPlayerId = lobbyProvider.localPlayer?.id;
+
+    final currentPlayer = players.firstWhere(
+      (p) => p.id == currentPlayerId,
+      orElse: () => lobbyProvider.localPlayer!,
+    );
+    final isReady = currentPlayer.ready;
+
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final allReady = players.isNotEmpty && players.every((p) => p.ready);
+
+      if (allReady && !hasNavigated) {
+        hasNavigated = true;
+
+        final userSelection = Provider.of<UserSelection>(
+          context,
+          listen: false,
+        );
+
+        if (lobbyProvider.isHost) {
+          setState(() => isLoading = true);
+
+          final gender = lobbyProvider.selectedGender;
+          final categoryId = lobbyProvider.categoryId;
+
+          if (gender != null && categoryId != null) {
+            final characterService = CharacterService();
+
+            final fetched = await characterService
+                .fetchRandomCharactersByValues(
+                  gender: gender,
+                  categoryId: categoryId,
+                );
+
+            await Future.wait(
+              fetched.map((character) {
+                final image = NetworkImage(character.imageUrl);
+                final completer = Completer();
+
+                image
+                    .resolve(const ImageConfiguration())
+                    .addListener(
+                      ImageStreamListener(
+                        (info, _) => completer.complete(),
+                        onError: (error, stackTrace) => completer.complete(),
+                      ),
+                    );
+
+                return completer.future;
+              }),
+            );
+
+            await lobbyProvider.saveRandomCharacters(fetched);
+            userSelection.setCharacters(fetched);
+          } else {
+            print('Error while looking for options.');
+          }
+
+          setState(() => isLoading = false);
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const OptionsScreen()),
+        );
+      }
+    });
 
     return Scaffold(
       body: BackgroundGradient(
@@ -82,15 +116,23 @@ class _LobbyScreenState extends State<LobbyScreen> {
               left: screenWidth * 0.02,
               child: IconButton(
                 icon: Icon(
-                  Icons.arrow_back,
+                  Icons.logout,
                   color: Colors.white,
                   size: screenWidth * 0.08,
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  final lobbyProvider = Provider.of<LobbyProvider>(
+                    context,
+                    listen: false,
+                  );
+                  lobbyProvider.leaveLobby();
+                  Navigator.pop(context);
+                },
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 padding: EdgeInsets.zero,
               ),
             ),
+
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
               child: Column(
@@ -110,26 +152,31 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.03),
-                  Center(child: LobbyCodeInput(code: "ABC123XYZ")),
+                  Center(
+                    child: LobbyCodeInput(code: lobbyProvider.lobbyCode ?? ''),
+                  ),
                   SizedBox(height: screenHeight * 0.06),
                   SizedBox(
                     height: screenHeight * 0.4,
                     child: ListView.builder(
-                      itemCount: mockPlayers.length,
+                      itemCount: players.length,
                       itemBuilder: (context, index) {
-                        final player = mockPlayers[index];
+                        final player = players[index];
+                        final isCurrentPlayer = player.id == currentPlayerId;
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: PlayerCard(
-                            currentAvatarIndex: player['currentAvatarIndex'],
-                            playerName: player['name'],
-                            isReady: player['isReady'],
-                            isCurrentPlayer: player['isCurrentPlayer'] ?? false,
-                            icon: const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 24,
-                            ),
+                            currentAvatarIndex: player.avatarId,
+                            playerName: player.nickname,
+                            isCurrentPlayer: isCurrentPlayer,
+                            icon: player.ready
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 24,
+                                  )
+                                : null,
                           ),
                         );
                       },
@@ -137,30 +184,41 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   ),
                   SizedBox(height: screenHeight * 0.06),
                   Center(
-                    child: isReadyButton
+                    child: lobbyProvider.isHost && isLoading
+                        ? Column(
+                            children: [
+                              const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Setting things up...',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: screenWidth * 0.045,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          )
+                        : isReady
                         ? CancelButton(
                             text: 'Cancel',
                             isWide: true,
-                            onPressed: () {
-                              setState(() {
-                                isReadyButton = false;
-                              });
+                            onPressed: () async {
+                              await lobbyProvider.setReady(false);
                             },
                           )
                         : SuccessButton(
                             text: 'Ready',
                             isWide: true,
-                            onPressed: () {
-                              setState(() {
-                                isReadyButton = true;
-                              });
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CharacterVotesScreen(),
-                                ),
-                              );
+                            onPressed: () async {
+                              await lobbyProvider.setReady(true);
                             },
                           ),
                   ),

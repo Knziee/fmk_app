@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import '../../providers/lobby_provider.dart';
 import '../../widgets/avatar_circle.dart';
 import '../../widgets/background_gradient.dart';
 import '../characters_choices_screen/characters_choices_screen.dart';
@@ -19,6 +21,7 @@ class OptionsScreen extends StatefulWidget {
 class _OptionsScreenState extends State<OptionsScreen> {
   List<Character> characters = [];
   bool isLoading = true;
+  final logger = Logger();
 
   @override
   void initState() {
@@ -27,42 +30,65 @@ class _OptionsScreenState extends State<OptionsScreen> {
   }
 
   Future<void> loadCharacters() async {
-    final startTime = DateTime.now();
+    final userSelection = Provider.of<UserSelection>(context, listen: false);
+    final lobbyProvider = Provider.of<LobbyProvider>(context, listen: false);
+    final characterService = CharacterService();
 
-    final selection = Provider.of<UserSelection>(context, listen: false);
-    final service = CharacterService();
-    final fetched = await service.fetchRandomCharacters(selection);
+    String? gender = userSelection.selectedGender;
+    String? categoryId = userSelection.selectedCategoryId;
 
-    await Future.wait(
-      fetched.map((character) {
-        final image = NetworkImage(character.imageUrl);
-        final completer = Completer();
+    if (userSelection.gameMode == 'multiplayer') {
+      int attempts = 0;
+      while (attempts < 15 && lobbyProvider.lobbyCharacters.isEmpty) {
+        attempts++;
+        await Future.delayed(Duration(seconds: 1));
+        await lobbyProvider.fetchLobbyCharacters();
+      }
+      userSelection.setCharacters(lobbyProvider.lobbyCharacters);
+      setState(() {
+        characters = lobbyProvider.lobbyCharacters;
+        isLoading = false;
+      });
+      if (lobbyProvider.lobbyCharacters.isEmpty) {
+        logger.e('Failed to load characters after $attempts attempts');
+        return;
+      }
+    } else {
+      if (gender == null || categoryId == null) {
+        logger.e('❌ Error looking for options.');
+        return;
+      }
 
-        image
-            .resolve(const ImageConfiguration())
-            .addListener(
-              ImageStreamListener(
-                (info, _) => completer.complete(),
-                onError: (error, stackTrace) => completer.complete(),
-              ),
-            );
+      final fetched = await characterService.fetchRandomCharactersByValues(
+        gender: gender,
+        categoryId: categoryId,
+      );
 
-        return completer.future;
-      }),
-    );
+      await Future.wait(
+        fetched.map((character) {
+          final image = NetworkImage(character.imageUrl);
+          final completer = Completer();
 
-    final elapsed = DateTime.now().difference(startTime);
-    final minLoadingDuration = Duration(seconds: 2);
-    if (elapsed < minLoadingDuration) {
-      await Future.delayed(minLoadingDuration - elapsed);
+          image
+              .resolve(const ImageConfiguration())
+              .addListener(
+                ImageStreamListener(
+                  (info, _) => completer.complete(),
+                  onError: (error, stackTrace) => completer.complete(),
+                ),
+              );
+
+          return completer.future;
+        }),
+      );
+
+      setState(() {
+        characters = fetched;
+        isLoading = false;
+      });
+
+      userSelection.setCharacters(fetched);
     }
-
-    setState(() {
-      characters = fetched;
-      isLoading = false;
-    });
-
-    selection.setCharacters(fetched);
   }
 
   @override

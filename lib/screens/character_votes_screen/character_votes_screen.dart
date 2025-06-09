@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../../models/player.dart';
+import '../../providers/lobby_provider.dart';
+import '../../providers/user_selection.dart';
 import '../../widgets/avatar_circle.dart';
 import '../../widgets/background_gradient.dart';
 import '../../widgets/basic_button.dart';
@@ -14,54 +18,51 @@ class CharacterVotesScreen extends StatefulWidget {
 }
 
 class _CharacterVotesScreenState extends State<CharacterVotesScreen> {
-  int currentAvatarIndex = 1;
-  final int totalAvatars = 5;
   int currentCharacterIndex = 0;
+  List<Player> players = [];
+  bool isLoading = true;
+  int visibleCount = 0;
 
-  final List<Map<String, dynamic>> mockPlayers = [
-    {
-      'currentAvatarIndex': 1,
-      'name': 'Bombardino',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c2', 'm': 'c3', 'k': 'c1'},
-    },
-    {
-      'currentAvatarIndex': 2,
-      'name': 'Thugthung',
-      'isCurrentPlayer': true,
-      'choices': {'f': 'c1', 'm': 'c2', 'k': 'c3'},
-    },
-    {
-      'currentAvatarIndex': 3,
-      'name': 'Sahurino',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c3', 'm': 'c1', 'k': 'c2'},
-    },
-    {
-      'currentAvatarIndex': 4,
-      'name': 'Crocodilo',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c1', 'm': 'c3', 'k': 'c2'},
-    },
-    {
-      'currentAvatarIndex': 5,
-      'name': 'Pastaroni',
-      'isCurrentPlayer': false,
-      'choices': {'f': 'c2', 'm': 'c1', 'k': 'c3'},
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadVotes();
+  }
 
-  final List<Map<String, String>> characters = [
-    {'id': 'c1', 'name': 'Scarlett Johansson'},
-    {'id': 'c2', 'name': 'Emma Watson'},
-    {'id': 'c3', 'name': 'Margot Robbie'},
-  ];
+  Future<void> _loadVotes() async {
+    final lobbyProvider = context.read<LobbyProvider>();
+
+    await lobbyProvider.fetchFinalResults();
+    final fetchedPlayers = lobbyProvider.players;
+
+    setState(() {
+      players = fetchedPlayers;
+      isLoading = false;
+      visibleCount = 0;
+    });
+
+    _startRevealAnimation(fetchedPlayers.length);
+  }
+
+  void _startRevealAnimation(int total) async {
+    for (int i = 0; i < total; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
+      setState(() {
+        visibleCount++;
+      });
+    }
+  }
 
   void _goToNextCharacter() {
-    if (currentCharacterIndex < characters.length - 1) {
+    final userSelection = context.read<UserSelection>();
+
+    if (currentCharacterIndex < userSelection.selectedCharacters.length - 1) {
       setState(() {
         currentCharacterIndex++;
+        visibleCount = 0;
       });
+      _startRevealAnimation(players.length);
     } else {
       Navigator.push(
         context,
@@ -72,9 +73,17 @@ class _CharacterVotesScreenState extends State<CharacterVotesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final character = characters[currentCharacterIndex];
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    final userSelection = context.watch<UserSelection>();
+    final characters = userSelection.selectedCharacters;
+
+    if (isLoading || characters.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final character = characters[currentCharacterIndex];
 
     return Scaffold(
       body: BackgroundGradient(
@@ -86,7 +95,7 @@ class _CharacterVotesScreenState extends State<CharacterVotesScreen> {
               SizedBox(height: screenHeight * 0.12),
               Center(
                 child: Text(
-                  character['name'] ?? '',
+                  character.name,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: screenWidth * 0.08,
@@ -99,9 +108,7 @@ class _CharacterVotesScreenState extends State<CharacterVotesScreen> {
               SizedBox(height: screenHeight * 0.03),
               Center(
                 child: AvatarCircle(
-                  imageProvider: AssetImage(
-                    'assets/images/avatars/$currentAvatarIndex.png',
-                  ),
+                  imageProvider: NetworkImage(character.imageUrl),
                   offset: Offset.zero,
                   size: screenWidth * 0.4,
                 ),
@@ -110,30 +117,52 @@ class _CharacterVotesScreenState extends State<CharacterVotesScreen> {
               SizedBox(
                 height: screenHeight * 0.4,
                 child: ListView.builder(
-                  itemCount: mockPlayers.length,
+                  itemCount: visibleCount,
                   itemBuilder: (context, index) {
-                    final player = mockPlayers[index];
-                    final choices = player['choices'] as Map<String, String>;
-                    final currentId = characters[currentCharacterIndex]['id'];
+                    final player = players[index];
+                    final choices = player.choices;
+                    final currentId = character.id;
+                    final currentPlayerId = context
+                        .read<LobbyProvider>()
+                        .localPlayer
+                        ?.id;
+                    final isCurrentPlayer = player.id == currentPlayerId;
 
                     String? emoji;
                     if (choices['f'] == currentId) {
                       emoji = '🍆';
-                    } else if (choices['m'] == currentId) {
+                    } else if (choices['marry'] == currentId) {
                       emoji = '💍';
-                    } else if (choices['k'] == currentId) {
+                    } else if (choices['kill'] == currentId) {
                       emoji = '🪦';
                     }
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: PlayerCard(
-                        currentAvatarIndex: player['currentAvatarIndex'],
-                        playerName: player['name'],
-                        isCurrentPlayer: player['isCurrentPlayer'] ?? false,
-                        icon: emoji != null
-                            ? Text(emoji, style: const TextStyle(fontSize: 22))
-                            : null,
+                    return TweenAnimationBuilder(
+                      tween: Tween<double>(begin: 40, end: 0),
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOut,
+                      builder: (context, double offsetX, child) {
+                        return Opacity(
+                          opacity: 1,
+                          child: Transform.translate(
+                            offset: Offset(offsetX, 0),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: PlayerCard(
+                          currentAvatarIndex: player.avatarId,
+                          playerName: player.nickname,
+                          isCurrentPlayer: isCurrentPlayer,
+                          icon: emoji != null
+                              ? Text(
+                                  emoji,
+                                  style: const TextStyle(fontSize: 22),
+                                )
+                              : null,
+                        ),
                       ),
                     );
                   },

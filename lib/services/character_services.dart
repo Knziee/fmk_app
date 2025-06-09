@@ -2,19 +2,19 @@ import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:logger/logger.dart';
 import '../models/character.dart';
-import '../providers/user_selection.dart';
 
 class CharacterService {
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
   final logger = Logger();
 
-  Future<List<Character>> fetchRandomCharacters(UserSelection selection) async {
-    final snapshot = await _dbRef
-        .child(selection.selectedCategoryId ?? '')
-        .get();
+  Future<List<Character>> fetchRandomCharactersByValues({
+    required String categoryId,
+    required String gender,
+  }) async {
+    final snapshot = await _dbRef.child(categoryId).get();
 
     if (!snapshot.exists) {
-      logger.w('⚠️ Nenhum dado encontrado para essa categoria.');
+      logger.w('⚠️ Nothing found.');
       return [];
     }
 
@@ -27,22 +27,18 @@ class CharacterService {
       for (var item in itemsMap.values) {
         final character = Character.fromMap(item);
 
-        if (selection.selectedGender == null ||
-            selection.selectedGender == 'both' ||
-            character.gender == selection.selectedGender) {
+        if (gender == 'both' || character.gender == gender) {
           allCharacters.add(character);
         }
       }
     }
 
     if (allCharacters.isEmpty) {
-      logger.w('⚠️ Nenhum personagem encontrado após filtragem.');
+      logger.w('⚠️ Nothing found.');
     }
 
     allCharacters.shuffle(Random());
-    final selected = allCharacters.take(3).toList();
-
-    return selected;
+    return allCharacters.take(3).toList();
   }
 
   Future<void> incrementVote(

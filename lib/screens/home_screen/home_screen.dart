@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../pick_avatar_screen/pick_avatar_screen.dart';
 import '../pick_category/pick_category_screen.dart';
 import '../../themes/app_colors.dart';
+import '../../providers/user_selection.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -66,7 +68,13 @@ class HomeScreen extends StatelessWidget {
       height: screenWidth * 0.2,
       child: ElevatedButton(
         onPressed: () {
+          final userSelection = Provider.of<UserSelection>(
+            context,
+            listen: false,
+          );
+          
           if (label == 'Single Player') {
+            userSelection.setGameMode('singleplayer');
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -74,11 +82,10 @@ class HomeScreen extends StatelessWidget {
               ),
             );
           } else {
+            userSelection.setGameMode('multiplayer');
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const PickAvatarScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const PickAvatarScreen()),
             );
           }
         },

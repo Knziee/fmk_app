@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'providers/lobby_provider.dart';
 import 'providers/user_selection.dart';
 import 'screens/home_screen/home_screen.dart';
 import './services/character_services.dart';
@@ -29,6 +30,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserSelection()),
         Provider<CharacterService>(create: (_) => CharacterService()),
+        ChangeNotifierProvider(create: (_) => LobbyProvider())
       ],
       child: const MyApp(),
     ),

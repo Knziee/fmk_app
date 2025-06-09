@@ -10,6 +10,7 @@ class UserSelection extends ChangeNotifier {
   Character? kChoice;
   int? avatarIndex;
   String? nickname;
+  String gameMode = 'single';
 
   void setGender(String gender) {
     selectedGender = gender;
@@ -91,6 +92,11 @@ class UserSelection extends ChangeNotifier {
 
   void setNickname(String name) {
     nickname = name;
+    notifyListeners();
+  }
+
+  void setGameMode(String mode) {
+    gameMode = mode;
     notifyListeners();
   }
 }

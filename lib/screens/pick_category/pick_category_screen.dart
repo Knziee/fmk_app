@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fmk_app/screens/lobby_screen/lobby_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:logger/logger.dart';
+import 'package:uuid/uuid.dart';
 import '../../../themes/app_colors.dart';
 import '../../../providers/user_selection.dart';
 import '../../../models/categories.dart';
 import '../../../services/categories_services.dart';
+import '../../models/player.dart';
+import '../../providers/lobby_provider.dart';
 import '../../widgets/background_gradient.dart';
 import '../options_screen/options_screen.dart';
 
@@ -213,12 +217,58 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                           title: category.title,
                           emoji: category.emoji,
                           screenWidth: screenWidth,
-                          onTap: () {
-                            Provider.of<UserSelection>(
+                          onTap: () async {
+                            final userSelection = Provider.of<UserSelection>(
                               context,
                               listen: false,
-                            ).setCategory(category.id);
-                            if (selectedGender != null) {
+                            );
+                            final lobbyProvider = Provider.of<LobbyProvider>(
+                              context,
+                              listen: false,
+                            );
+                            userSelection.setCategory(category.id);
+
+                            final selectedGender = userSelection.selectedGender;
+                            final gameMode = userSelection.gameMode;
+
+                            if (selectedGender == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please select a gender first.',
+                                  ),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              return;
+                            }
+                            if (gameMode == 'multiplayer') {
+                              final player = Player(
+                                id: const Uuid().v4(),
+                                nickname: userSelection.nickname ?? 'Player',
+                                avatarId: userSelection.avatarIndex ?? 1,
+                                choices: {},
+                                ready: false,
+                              );
+
+                              await lobbyProvider.createLobby(
+                                player,
+                                category.id,
+                                selectedGender,
+                              );
+                              Future.delayed(
+                                const Duration(milliseconds: 300),
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const LobbyScreen(),
+                                    ),
+                                  );
+                                },
+                              );
+
+                            } else {
                               Future.delayed(
                                 const Duration(milliseconds: 300),
                                 () {
@@ -229,15 +279,6 @@ class _PickCategoryScreenState extends State<PickCategoryScreen> {
                                     ),
                                   );
                                 },
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Please select a gender first.',
-                                  ),
-                                  backgroundColor: Colors.orange,
-                                ),
                               );
                             }
                           },

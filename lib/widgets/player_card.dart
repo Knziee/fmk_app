@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import '../themes/app_colors.dart';
-import 'avatar_circle.dart';
 
 class PlayerCard extends StatelessWidget {
   final int currentAvatarIndex;
   final String playerName;
-  final bool? isReady;
   final Widget? icon;
   final bool isCurrentPlayer;
 
@@ -13,7 +11,6 @@ class PlayerCard extends StatelessWidget {
     super.key,
     required this.currentAvatarIndex,
     required this.playerName,
-    this.isReady,
     this.icon,
     this.isCurrentPlayer = false,
   });
@@ -33,12 +30,10 @@ class PlayerCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          AvatarCircle(
-            imageProvider: AssetImage(
-              'assets/images/avatars/$currentAvatarIndex.png',
-            ),
-            offset: Offset.zero,
-            size: 35,
+          Image.asset(
+            'assets/images/avatars/$currentAvatarIndex.png',
+            width: 45,
+            height: 45, 
           ),
           const SizedBox(width: 8),
           Expanded(
