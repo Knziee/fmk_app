@@ -14,12 +14,13 @@
 - ✅ Categories like **Anime**, **Games**, and **Celebrities**  
 - ✅ See how much players agree with your... *interesting* choices on who to f, marry, or kill  
 - ✅ Smooth animations
+- ✅ Multiplayer, almost functional — but you can only play one round lol
 
 ## 🚀 Coming Soon  
 
 - 🎨 Juicier animations 
 - 🛠 Custom categories (add your exes, I won't judge)  
-- 👥 Multiplayer mode (ruin friendships in real-time)  
+- 👥 Multiplayer improvements and refactoring — better code organization and gameplay dynamics  
 - 🗃 Database upgrades (to store your sins properly)  
 - 📱 Better responsiveness
 
@@ -37,11 +38,6 @@
 
 Try the messy beta:  
 🔗 [https://fmkwebapp.web.app/](https://fmkwebapp.web.app/)  
-
-⚠️ **Current Status**: Engaged in epic battle with Firebase Hosting  
-- If the link works → I'm winning 🏆  
-- If it's broken → The fight continues ⚔️  
-- Check back soon (unless Firebase defeats me)  
 
 
 ## 🛠 Tech Stack  
