@@ -36,8 +36,11 @@
 
 ## 🚧 Live Demo  
 
-Try the messy beta:  
+Try the messy beta with multiplayer available on the demo link:  
 🔗 [https://fmkwebapp.web.app/](https://fmkwebapp.web.app/)  
+
+> ⚠️ Note: Multiplayer is available on the demo link, but in the GitHub repository it’s only on the separate `multiplayer` branch — not yet merged into the main branch.
+
 
 
 ## 🛠 Tech Stack  
