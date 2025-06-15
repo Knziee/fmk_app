@@ -133,8 +133,13 @@ class LobbyProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Stream<List<Character>> watchLobbyCharacters() {
-  //   if (lobbyCode == null) return const Stream.empty();
-  //   return _service.watchLobbyCharacters(lobbyCode!);
-  // }
+  Stream<List<Character>> watchLobbyCharacters() {
+    if (lobbyCode == null) return const Stream.empty();
+    return _service.watchLobbyCharacters(lobbyCode!);
+  }
+
+  Future<void> clearLobbyCharacters() async {
+    if (lobbyCode == null) return;
+    await _service.clearLobbyCharacters(lobbyCode!);
+  }
 }

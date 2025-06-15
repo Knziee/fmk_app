@@ -5,7 +5,7 @@ import '../../providers/user_selection.dart';
 import '../../widgets/background_gradient.dart';
 import '../../widgets/basic_button.dart';
 import '../../widgets/player_choices_card.dart';
-// import '../lobby_screen/lobby_screen.dart';
+import '../lobby_screen/lobby_screen.dart';
 
 class PlayersChoicesScreen extends StatefulWidget {
   const PlayersChoicesScreen({super.key});
@@ -94,9 +94,25 @@ class _PlayerChoicesScreenState extends State<PlayersChoicesScreen> {
                 ),
               ),
               SizedBox(height: 4),
-              Opacity(
-                opacity: 0.5,
-                child: BasicButton(text: 'WIP', onPressed: () {}),
+              BasicButton(
+                text: 'Play Again',
+                onPressed: () async {
+                  final lobbyProvider = Provider.of<LobbyProvider>(
+                    context,
+                    listen: false,
+                  );
+                  lobbyProvider.resetReadyAndChoicesForAll();
+
+                  await Provider.of<LobbyProvider>(
+                    context,
+                    listen: false,
+                  ).clearLobbyCharacters();
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LobbyScreen()),
+                  );
+                },
               ),
             ],
           ),

@@ -165,18 +165,18 @@ class MultiplayerService {
     }).toList();
   }
 
-  // Stream<List<Character>> watchLobbyCharacters(String lobbyCode) {
-  //   return db.child('lobbies/$lobbyCode/characters').onValue.map((event) {
-  //     final data = event.snapshot.value;
-  //     if (data == null) return <Character>[];
+  Stream<List<Character>> watchLobbyCharacters(String lobbyCode) {
+    return db.child('lobbies/$lobbyCode/characters').onValue.map((event) {
+      final data = event.snapshot.value;
+      if (data == null) return <Character>[];
 
-  //     final listData = data as List<dynamic>;
-  //     return listData.map((item) {
-  //       final map = Map<String, dynamic>.from(item);
-  //       return Character.fromMap(map);
-  //     }).toList();
-  //   });
-  // }
+      final listData = data as List<dynamic>;
+      return listData.map((item) {
+        final map = Map<String, dynamic>.from(item);
+        return Character.fromMap(map);
+      }).toList();
+    });
+  }
 
   Future<void> setHost(String lobbyCode, String playerId) async {
     final playersRef = db.child('lobbies/$lobbyCode/players');
@@ -193,4 +193,9 @@ class MultiplayerService {
 
     await playersRef.update(updates);
   }
+
+  Future<void> clearLobbyCharacters(String lobbyCode) async {
+    await db.child('lobbies/$lobbyCode/characters').remove();
+  }
+
 }

@@ -38,21 +38,32 @@ class _OptionsScreenState extends State<OptionsScreen> {
     String? categoryId = userSelection.selectedCategoryId;
 
     if (userSelection.gameMode == 'multiplayer') {
-      int attempts = 0;
-      while (attempts < 15 && lobbyProvider.lobbyCharacters.isEmpty) {
-        attempts++;
-        await Future.delayed(Duration(seconds: 1));
-        await lobbyProvider.fetchLobbyCharacters();
-      }
-      userSelection.setCharacters(lobbyProvider.lobbyCharacters);
-      setState(() {
-        characters = lobbyProvider.lobbyCharacters;
-        isLoading = false;
+      StreamSubscription<List<Character>>? subscription;
+
+      subscription = lobbyProvider.watchLobbyCharacters().listen((
+        lobbyCharacters,
+      ) {
+        if (lobbyCharacters.length < 3) return;
+        if (!mounted) return;
+
+        setState(() {
+          characters = lobbyCharacters;
+          isLoading = false;
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          userSelection.setCharacters(lobbyCharacters);
+        });
+        subscription?.cancel();
       });
-      if (lobbyProvider.lobbyCharacters.isEmpty) {
-        logger.e('Failed to load characters after $attempts attempts');
-        return;
-      }
+
+      Future.delayed(const Duration(seconds: 15), () {
+        if (characters.isEmpty && mounted) {
+          logger.e("❌ Timeout: Error loading multiplayer characters.");
+          setState(() => isLoading = false);
+          subscription?.cancel();
+        }
+      });
     } else {
       if (gender == null || categoryId == null) {
         logger.e('❌ Error looking for options.');

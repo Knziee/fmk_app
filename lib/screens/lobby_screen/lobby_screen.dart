@@ -20,17 +20,8 @@ class LobbyScreen extends StatefulWidget {
 }
 
 class _LobbyScreenState extends State<LobbyScreen> {
-  bool hasNavigated = false;
   bool isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final lobbyProvider = Provider.of<LobbyProvider>(context, listen: false);
-
-    lobbyProvider.resetReadyAndChoicesForAll();
-  }
+  bool _navigated = false;
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +41,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final allReady = players.isNotEmpty && players.every((p) => p.ready);
 
-      if (allReady && !hasNavigated) {
-        hasNavigated = true;
+      if (allReady && !_navigated) {
+        _navigated = true;
 
         final userSelection = Provider.of<UserSelection>(
           context,
